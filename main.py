@@ -8,7 +8,7 @@ class Lok:
         self.arrow = 405.0
         self.string_weight = 35.0
         self.poteg = 30.0
-        self.kinetic= 0
+        self.kinetic= 75.65
         self.fps=290
         self.ATA= 40
         self.stabi_dolzina=30
