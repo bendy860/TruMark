@@ -167,7 +167,7 @@ elif page == "Paper Tune":
             if l_d_razdalja != 0:
                 if g_dol_razdalja < 6:
                     st.warning(f"Move your REST {gor_dol} by 1-2 turns")
-                elif l_d_razdalja < 21:
+                elif g_dol_razdalja < 21:
                     st.warning(f"Move your REST {gor_dol} by 3-4 turns")
                 else:
                     st.warning(f"Check and adjust your NOCKING point HEIGHT")
