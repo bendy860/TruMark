@@ -9,7 +9,8 @@ class Lok:
         self.string_weight = 35.0
         self.poteg = 30.0
         self.kinetic= 75.65
-        self.fps=290
+        #self.__fps=290
+        self.fps = 290.00
         self.ATA= 40
         self.stabi_dolzina=30
 
@@ -23,7 +24,7 @@ class Lok:
 
     def dodaj_ATA(self, ata):
         self.ATA=ata
-#sidebar
+
 
 if "moj_lok" not in st.session_state:
     st.session_state.moj_lok = Lok()
@@ -66,13 +67,36 @@ page = st.sidebar.radio("Choose tool", ["Home page",
                                         "Arrow Builder & FrontOfCenter (FOC)",
                                         "Kinetic energy",
                                         "Target Stabilizer setup",
-                                        "Hunting Stabilizer setup"]
+                                        "Hunting Stabilizer setup"])
 
-#sidebar konc
+
 
 if page == "Home page":
     st.header("Welcome to the TruMark- archery tuner!")
     st.write("Please, if you haven't already, input the correct ratings for your setup in the FPS CALCULATOR tool")
+
+
+
+    st.image("logo.jpg")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric("Bow Weight", f"{lok.weight:.1f} lbs")
+        st.metric("Draw Length", f"{lok.poteg:.1f}″")
+
+    with col2:
+        st.metric("Arrow Weight", f"{lok.arrow} gr")
+        st.metric("Grains per Pound", f"{lok.arrow / lok.weight:.1f} gr/lb")
+
+    with col3:
+        st.metric("Predicted Speed", f"{round(lok.fps)} FPS")
+
+    with col4:
+        st.metric("Kinetic Energy", f"{lok.kinetic:.1f} ft-lbs")
+
+    st.divider()
+
 
 
 elif page == "FPS Calculator":
@@ -81,19 +105,18 @@ elif page == "FPS Calculator":
     # Vrednosti se zdaj berejo in shranjujejo direktno v obj
     lok.rating = st.number_input("IBO/ATA speed (FPS)", value=lok.rating)
     lok.weight = st.number_input("Bow weight (lbs)", value=lok.weight)
-    lok.arrow = st.number_input("Arrow weight (grains)", value=lok.arrow)
-    lok.string_weight = st.number_input("Added weight on the string (grains)", value=lok.string_weight)
-    lok.poteg = st.number_input("Draw length (inch)", value=lok.poteg)
+    lok.arrow = st.number_input("Arrow weight (grains)", value=lok.arrow, max_value=1275.00)
+    lok.string_weight = st.number_input("Added weight on the string (grains)", value=lok.string_weight, max_value=100.00)
+    lok.poteg = st.number_input("Draw length (inch)", value=lok.poteg, max_value=40.00)
 
     total_arrow_weight = lok.arrow + lok.string_weight
     faktor_potega = (lok.poteg - 30) * 10
 
     predicted_fps = (lok.rating + faktor_potega - ((total_arrow_weight - (lok.weight * 5)) / 3)) - 3.5
     lok.dodaj_fps(predicted_fps)
-
     st.divider()
     st.success(f"Predicted FPS: {round(predicted_fps)} FPS")
-    if lok.arrow // lok.weight < 5:
+    if lok.arrow / lok.weight < 5:
         st.warning("!!! TOO LIGHT OF AN ARROW, FOLLOW 5gr/pound")
 
 
@@ -164,7 +187,8 @@ elif page == "Paper Tune":
 
 
         with col_b:
-            if l_d_razdalja != 0:
+            #if l_d_razdalja  != 0:
+            if g_dol_razdalja != 0:
                 if g_dol_razdalja < 6:
                     st.warning(f"Move your REST {gor_dol} by 1-2 turns")
                 elif g_dol_razdalja < 21:
@@ -220,9 +244,10 @@ elif page == "Arrow Builder & FrontOfCenter (FOC)":
     st_peres= st.slider("Select the number of vanes",2,8,3)
     wrap= st.number_input("Wrap weight (leave at 0 if none)", value= 0.0)
 
-    lok.arrow= round(teza_na_gr*dolzina+spica+point_insert+nock+pero_gr*st_peres+wrap, 2)
+    #lok.arrow= round(teza_na_gr*dolzina+spica+point_insert+nock+pero_gr*st_peres+wrap, 2)
 
     if st.button("Calculate weight of the arrow"):
+        lok.arrow = round(teza_na_gr * dolzina + spica + point_insert + nock + pero_gr * st_peres + wrap, 2)
         st.write(f"Arrow weight is {lok.arrow}")
 
     if st.button("Calculate FOC"):
@@ -237,17 +262,18 @@ elif page == "Arrow Builder & FrontOfCenter (FOC)":
             elif foc_result < 8:
                 st.warning("Low FOC: Your arrow might be unstable. Consider a heavier point.")
             else:
-                st.info("High FOC: Great for penetration and stability, but expect more drop at distance.")
+                st.info("High FOC: Great for penetration and stability but expect more drop at distance.")
         else:
             st.error("Please enter values greater than 0.")
 
 elif page == "Kinetic energy":
 
-    game=[("Nothing...you should probably input correct ratings or get something stronger ¯\_(ツ)_/¯"),("Small game","ex. Rabbits, Small birds"), ("Medium game", "ex. White-tails / Antelopes ") , ("Large game","ex. Black bears,Elk") , ("Big game","ex. Grizzlies, Buffalo")]
+    game=["Nothing...you should probably input correct ratings or get something stronger ¯\_(ツ)_/¯",("Small game","ex. Rabbits, Small birds"), ("Medium game", "ex. White-tails / Antelopes ") , ("Large game","ex. Black bears,Elk") , ("Big game","ex. Grizzlies, Buffalo")]
     st.header("Kinetic energy")
     st.write("Here we calcuate the actual energy output that your setup will give out")
     ke = round((lok.arrow * lok.fps ** 2) / 450240,2)
     x=0
+    lok.dodaj_kinetic(ke)
 
     st.warning(f"The bow outputs {ke} foot-pounds of energy")
     if ke<25:
@@ -256,7 +282,6 @@ elif page == "Kinetic energy":
         x=1
     elif ke > 42 and ke < 66:
         x=2
-
     elif ke > 66:
         x=3
     st.success(f"With your current setup you can hunt up to: {game[x]}")
@@ -282,42 +307,42 @@ elif page == "Target Stabilizer setup":
             st.write("DEFLEX")
             st.image("DOMINATOR_DUO_X_DEFLEX.jpg")
 
+    st.warning("LET-OFF calculations are made to make your setup HEAVIER the less % you have!!")
+    let_ja_ne = st.radio("Include let off in the calculations?", ["NO", "YES"])
+    if let_ja_ne == "YES":
+        let_off = st.slider("letoff %", 60, 90, 75)
+        let_off_multiplajr = 1.08 - (let_off - 75) * 0.0075
+        napis_let_off = f"{let_off}% included in the calculations"
+    else:
+        let_off_multiplajr = 1.0
+        napis_let_off = ""
 
-    if st.button("Calculate"):
-        base = 7.5 * (ATA / 40) * Stil  # standard ravnan po mojmu setupu ( PSE Dominator duo 40, 60lbs, 30.25 inch DL, 75let_off
+    base = 7.5 * (ATA / 40) * Stil * (lok.weight / 58)  # Base around 7.5 oz at 37 ATA
 
-        sprednja_teza = round(base * (30 / sprednji_dolzina) ** 0.6, 1)
+    #sprednja_teza = round(base * (30 / sprednji_dolzina) ** 0.6, 1)
+    sprednja_teza = round(base * (30 / sprednji_dolzina) ** 0.6 * let_off_multiplajr *1.3 , 1)
 
-        sprednji_moment = sprednja_teza * sprednji_dolzina
+    sprednji_moment = sprednja_teza * sprednji_dolzina
 
-        zadnja_teza_total = round(sprednji_moment / zadnja_dolzina, 1)
+    zadnja_teza_total = round(sprednji_moment / zadnja_dolzina * 0.6, 1)
 
-        if riser_opcija == "DEFLEX":
-            sprednja_teza = round(1.2 * sprednja_teza, 1)
+    if riser_opcija == "DEFLEX":
+        sprednja_teza = round(1.2 * sprednja_teza, 1)
 
-        if stevilo_back_rod == 2:
-            zadnja_teza_per_bar = round(zadnja_teza_total / 2, 1)
-        else:
-            zadnja_teza_per_bar = zadnja_teza_total
+    if stevilo_back_rod == 2:
+        zadnja_teza_per_bar = round(zadnja_teza_total / 2, 1)
+    else:
+        zadnja_teza_per_bar = zadnja_teza_total
 
-        st.warning("LET-OFF calculations are made to make your setup HEAVIER the less % you have!!")
-        let_ja_ne = st.radio("Include let off in the calculations?", ["NO", "YES"])
-        if let_ja_ne == "YES":
-            let_off = st.slider("letoff %", 60, 90, 75)
-            let_off_multiplajr = 1.08 - (let_off - 75) * 0.0075
-            napis_let_off = f"{let_off}% included in the calculations"
-        else:
-            let_off_multiplajr = 1.0
-            napis_let_off = ""
-        st.subheader("Recommended Weights")
+    st.subheader("Recommended Weights")
 
-        col_a, col_b, col_c = st.columns(3)
-        with col_a:
-            st.metric("Front Stabilizer", f"{sprednja_teza} oz", )
-        with col_b:
-            st.metric("Back Bar (each)", f"{zadnja_teza_per_bar} oz", )
-        with col_c:
-            st.metric("Total Back Weight", f"{zadnja_teza_total} oz")
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.metric("Front Stabilizer", f"{sprednja_teza} oz",delta= napis_let_off )
+    with col_b:
+        st.metric("Back Bar (each)", f"{zadnja_teza_per_bar} oz",delta= napis_let_off )
+    with col_c:
+        st.metric("Total Back Weight", f"{zadnja_teza_total} oz")
 
 
 
@@ -329,7 +354,7 @@ elif page == "Hunting Stabilizer setup":
 
     sprednji_dolzina = st.number_input("Input the length of the FRONT rod", 6, 15, 12)
     zadnja_dolzina = st.number_input("Input the length of the BACK rod", 1, 15, 12)
-    stevilo_back_rod = st.selectbox("How many side-rods are you running?", [None ,1, 2])
+    stevilo_back_rod = st.selectbox("How many side-rods are you running?", [1, 2])
     ATA = st.number_input("Input the ATA (AXLE to AXLE) of your bow", 27, 36, 32)
     riser_opcija=st.select_slider("select your riser geometry", ["REFLEX", "DEFLEX"], "REFLEX" )
 
@@ -364,34 +389,33 @@ elif page == "Hunting Stabilizer setup":
         let_off_multiplajr = 1.0
         napis_let_off= ""
 
-    if st.button("Calculate"):
+    base = (5 * (ATA / 34) * (lok.weight / 58))
+    # * Stil# Base around 7.5 oz at 37 ATA
 
-        base = (5 * (ATA / 34) )
-               # * Stil# Base around 7.5 oz at 37 ATA
+    sprednja_teza = round(base * (15 / sprednji_dolzina) ** 0.6 * let_off_multiplajr * x, 1) + 3.2
 
-        sprednja_teza = round(base * (15 / sprednji_dolzina) ** 0.6 * let_off_multiplajr* x, 1)
+    sprednji_moment = sprednja_teza * sprednji_dolzina
 
-        sprednji_moment = sprednja_teza * sprednji_dolzina
+    zadnja_teza_total = round(sprednji_moment / zadnja_dolzina, 1)
 
-        zadnja_teza_total = round(sprednji_moment / zadnja_dolzina, 1)
+    if riser_opcija == "DEFLEX":
+        sprednja_teza = round(1.25 * sprednja_teza, 1)
 
-        if riser_opcija == "DEFLEX":
-            sprednja_teza = round(1.25 * sprednja_teza, 1)
+    if stevilo_back_rod == 2:
+        zadnja_teza_per_bar = round(zadnja_teza_total / 2, 1)
+    else:
+        zadnja_teza_per_bar = zadnja_teza_total
 
-        if stevilo_back_rod == 2:
-            zadnja_teza_per_bar = round(zadnja_teza_total / 2, 1)
-        else:
-            zadnja_teza_per_bar = zadnja_teza_total
+    #if st.button("Calculate"):
+    st.subheader("Recommended Weights")
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.metric("Front Stabilizer", f"{round(sprednja_teza,1)} oz",delta= napis_let_off) # +3.3 je kalibracija po mojem testiranju
+    with col_b:
+        st.metric("Back Bar (each)", f"{round(zadnja_teza_per_bar,1)} oz",  delta= napis_let_off)
+    with col_c:
+        st.metric("Total Back Weight", f"{round(zadnja_teza_total,1)} oz")
 
 
-
-        st.subheader("Recommended Weights")
-        col_a, col_b, col_c = st.columns(3)
-        with col_a:
-            st.metric("Front Stabilizer", f"{sprednja_teza} oz",delta=napis_let_off)
-        with col_b:
-            st.metric("Back Bar (each)", f"{zadnja_teza_per_bar} oz",  delta=napis_let_off)
-        with col_c:
-            st.metric("Total Back Weight", f"{zadnja_teza_total} oz")
 
 
