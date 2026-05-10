@@ -23,7 +23,7 @@ class Lok:
 
     def dodaj_ATA(self, ata):
         self.ATA=ata
-
+#sidebar
 
 if "moj_lok" not in st.session_state:
     st.session_state.moj_lok = Lok()
@@ -66,9 +66,9 @@ page = st.sidebar.radio("Choose tool", ["Home page",
                                         "Arrow Builder & FrontOfCenter (FOC)",
                                         "Kinetic energy",
                                         "Target Stabilizer setup",
-                                        "Hunting Stabilizer setup"])
-# ====================== END OF SIDEBAR ======================
+                                        "Hunting Stabilizer setup"]
 
+#sidebar konc
 
 if page == "Home page":
     st.header("Welcome to the TruMark- archery tuner!")
@@ -284,7 +284,7 @@ elif page == "Target Stabilizer setup":
 
 
     if st.button("Calculate"):
-        base = 7.5 * (ATA / 40) * Stil  # Base around 7.5 oz at 37 ATA
+        base = 7.5 * (ATA / 40) * Stil  # standard ravnan po mojmu setupu ( PSE Dominator duo 40, 60lbs, 30.25 inch DL, 75let_off
 
         sprednja_teza = round(base * (30 / sprednji_dolzina) ** 0.6, 1)
 
