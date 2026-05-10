@@ -317,7 +317,7 @@ elif page == "Target Stabilizer setup":
         let_off_multiplajr = 1.0
         napis_let_off = ""
 
-    base = 7.5 * (ATA / 40) * Stil * (lok.weight / 58)  # Base around 7.5 oz at 37 ATA
+    base = 7.5 * (ATA / 37) * Stil * (lok.weight / 56.5)  # Base around 7.5 oz at 37 ATA
 
     #sprednja_teza = round(base * (30 / sprednji_dolzina) ** 0.6, 1)
     sprednja_teza = round(base * (30 / sprednji_dolzina) ** 0.6 * let_off_multiplajr *1.3 , 1)
